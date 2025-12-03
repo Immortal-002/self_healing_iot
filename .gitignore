@@ -1,0 +1,4 @@
+404: Not Founddevice_agent.log
+*.log
+__pycache__/
+*.pyc
