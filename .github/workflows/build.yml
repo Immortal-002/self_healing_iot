@@ -1,0 +1,90 @@
+name: Build cross-platform device_agent
+
+on:
+  push:
+    tags:
+      - 'v*'     # runs when you push a tag like v1.0.0
+  workflow_dispatch: {}  # allows manual run from Actions UI
+
+jobs:
+  build-linux:
+    name: Build (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build deps
+        run: sudo apt-get update && sudo apt-get install -y build-essential cmake
+
+      - name: Configure & Build
+        run: |
+          cd device_agent
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build . -- -j
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: device_agent-linux
+          path: device_agent/build/device_agent
+
+  build-windows:
+    name: Build (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure & Build (MSVC)
+        run: |
+          cd device_agent
+          mkdir -p build
+          cd build
+          cmake .. -G "Visual Studio 17 2022"
+          cmake --build . --config Release
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: device_agent-windows
+          path: device_agent/build/Release/device_agent.exe
+
+  attach-release:
+    name: Attach artifacts to GitHub Release
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: device_agent-linux
+          path: artifacts/linux
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: device_agent-windows
+          path: artifacts/windows
+
+      - name: Create GitHub Release and upload artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: Automated release for ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux binary to release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: artifacts/linux/device_agent
+
+      - name: Upload Windows binary to release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: artifacts/windows/device_agent.exe
