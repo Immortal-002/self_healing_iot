@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/rana/self_healing_iot/device_agent/build/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

@@ -1,3 +1,0 @@
-/home/rana/self_healing_iot/device_agent/build/CMakeFiles/device_agent.dir
-/home/rana/self_healing_iot/device_agent/build/CMakeFiles/edit_cache.dir
-/home/rana/self_healing_iot/device_agent/build/CMakeFiles/rebuild_cache.dir
