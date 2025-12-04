@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/device_agent.dir/link.d CMakeFiles/device_agent.dir/src/main.cpp.o -o device_agent

@@ -7,7 +7,20 @@ import os
 
 app = FastAPI()
 
-LOGFILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "device_agent", "device_agent.log")
+# try env var
+LOGFILE = os.environ.get("DEVICE_LOGFILE", None)
+if LOGFILE is None:
+    # common fallbacks relative to repo root
+    cand = [
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), "device_agent", "device_agent.log"),
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), "device_agent", "device_agent.log"), # same but keep
+        "/var/log/device_agent.log",
+        "./device_agent/device_agent.log",
+    ]
+    LOGFILE = next((p for p in cand if os.path.isfile(p)), cand[0])
+
+
+
 SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "infra", "fault_injection")
 
 class Action(BaseModel):
