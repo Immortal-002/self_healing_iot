@@ -1,4 +1,21 @@
-404: Not Founddevice_agent.log
+# Logs
+device_agent.log
 *.log
+
+# C++ build files
+agent
+*.o
+*.out
+
+# Python cache
 __pycache__/
 *.pyc
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# VS Code / IDE
+.vscode/
+.idea/

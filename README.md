@@ -1,46 +1,58 @@
-# Self-Healing IoT System 🛠️⚡
+# Self-Healing IoT Framework 🛡️⚡  
+**Autonomous fault detection + instant self-healing for edge devices**
 
-An autonomous IoT framework that detects faults in real-time and self-heals without human intervention.
+Real-time C++ agent on device + Python orchestrator + MQTT communication + fault injection for testing.
 
-## Current Features (as of today)
-- C++ device agent running on edge devices
-- MQTT-based communication infrastructure (Python)
-- Fault injection scripts for testing self-healing logic
-- Real-time logging (`device_agent.log`)
+## Current Features (Live & Working)
+- C++ agent runs on IoT device, sends heartbeat + metrics every 5s
+- Python orchestrator (`app.py`) monitors health via MQTT
+- Detects network latency, process crash, or missed heartbeats
+- Triggers automatic healing (restart agent, remove delay, etc.)
+- Fault injection scripts to test the self-healing logic
 
 ## Project Structure
 self_healing_iot/
-├── device_agent/              ← C++ agent running on IoT devices
-│   ├── src/main.cpp           ← Core agent logic
-│   └── device_agent.log       ← Live logs (gitignored)
+├── device_agent/              ← Runs on actual IoT device (Raspberry Pi, etc.)
+│   ├── src/main.cpp           ← C++ agent (compiles to ./agent)
+│   └── agent                  ← Compiled binary (gitignored)
 │
-├── infra/                     ← Infrastructure & testing scripts
-│   ├── mqtt_pub.py            ← Publishes device telemetry & heartbeats
-│   ├── mqtt_sub.py            ← Listens and triggers healing actions
+├── infra/
+│   ├── mqtt_pub.py            ← Simulated device publisher (for testing)
+│   ├── mqtt_sub.py            ← Legacy subscriber
+│   ├── app.py                 ← Main orchestrator (detects + heals)
 │   └── fault_injection/
-│       ├── add_delay.sh       ← Simulates network latency fault
-│       └── remove_delay.sh    ← Recovers from the fault (self-healing demo)
+│       ├── add_delay.sh       ← Injects 2000ms network latency
+│       └── remove_delay.sh    ← Removes latency (healing action)
 │
-└── README.md                  ← You’re reading it!
+├── device_agent.log           ← Live log from agent (gitignored)
+└── README.md                  ← This file
 
-## How to Run (Quick Start)
+
+## How to Run Everything (Tested & Working)
+
+### Step 1: Start MQTT broker (Mosquitto)
 ```bash
-# Start MQTT broker (e.g., Mosquitto) separately
-# Then:
+mosquitto -v
+
+Step 2: Compile & run the C++ agent (on device or laptop)
+Bash
+cd device_agent
+g++ src/main.cpp -o agent -lpthread -std=c++17
+./agent
+
+Step 3: Start the Python orchestrator (main brain)
 cd infra
-python3 mqtt_sub.py &   # Run subscriber in background
-python3 mqtt_pub.py     # Simulate device
+python3 app.py
 
-# In another terminal → inject fault
-./infra/fault_injection/add_delay.sh
-# Watch the system detect + self-heal automatically!
+Step 4: Inject a fault & watch it self-heal!
+./infra/fault_injection/add_delay.sh      # Inject 2-second delay
+# → orchestrator detects → runs remove_delay.sh → system back to normal!
+Next 2-Month Roadmap
 
-Next 2 Months Roadmap
+On-device lightweight anomaly detection (no Python needed)
+Auto-restart crashed agent via systemd/watchdog
+Configurable healing actions (JSON config)
+Web dashboard (FastAPI + React)
 
-Add anomaly detection using lightweight ML on-device
-Implement auto-restart of crashed agents
-Add watchdog + rollback mechanisms
-Web dashboard for monitoring
-
-Open for contributions! ⭐ the repo and fork if you like it!
-Made with ❤️ by @Immortal-002
+⭐ Star | 🔗 Fork | 🤝 Contribute welcomed!
+Made with passion by @Immortal-002
